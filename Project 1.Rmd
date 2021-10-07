@@ -1,0 +1,54 @@
+---
+title: "Project 1"
+author: "Holly Coulter, Joel Miller, & Willem Nienhuis"
+date: "10/8/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(lubridate)
+library(ggmap)
+```
+
+```{r data_clean, message = FALSE, show_col_types = FALSE}
+rats_raw <- read_csv("/Users/willem/SSC 442/Data/Rat_sightings.csv", na = c("", "NA", "N/A"))
+
+rats_clean <- rats_raw %>%
+  rename(created_date = `Created Date`,
+         location_type = `Location Type`,
+         borough = Borough,
+         zip = 'Incident Zip') %>%                #block of code prof gave us - cleans up data  i guess
+  mutate(created_date = mdy_hms(created_date)) %>%
+  mutate(sighting_year = year(created_date),
+         sighting_month = month(created_date),
+         sighting_day = day(created_date),
+         sighting_weekday = wday(created_date, label = TRUE, abbr = FALSE)) %>%
+  filter(borough != "Unspecified")
+```
+
+```{r map, message = FALSE, fig.keep='none'}
+rats <- rats_clean[!(is.na(rats_clean$Latitude) | rats_clean$Latitude ==""),] 
+
+new <- rats %>% group_by(rats[36], rats[37]) %>% mutate(frequency = 1)
+
+new_york <- get_map(location = c(-74.26, 40.50, -73.71, 40.91), #bounding box so points dont get missed
+                    source = "google",
+                    #zoom = 11, 
+                    maptype = "roadmap")
+ggmap(new_york)
+```
+\newpage
+```{r plot, warning=FALSE}
+ggmap(new_york) + geom_point(data = new, aes(x = Longitude, 
+                                             y = Latitude,
+                                             color = borough), #colored by borough? could be useful
+                             size = 0.001, alpha = 0.05) + 
+  coord_fixed() +
+  ggtitle("Rat Sightings in New York City") + 
+  labs(x = "Longitude", y = "Latitude")
+
+```
+
+

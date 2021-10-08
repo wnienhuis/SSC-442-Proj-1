@@ -35,19 +35,22 @@ new <- rats %>% group_by(rats[36], rats[37]) %>% mutate(frequency = 1)
 
 new_york <- get_map(location = c(-74.26, 40.50, -73.71, 40.91), #bounding box so points dont get missed
                     source = "google",
-                    #zoom = 11, 
+                    zoom = 11, 
                     maptype = "roadmap")
 ggmap(new_york)
 ```
 \newpage
 ```{r plot, warning=FALSE}
+#mapping data points
 ggmap(new_york) + geom_point(data = new, aes(x = Longitude, 
                                              y = Latitude,
-                                             color = borough), #colored by borough? could be useful
-                             size = 0.001, alpha = 0.05) + 
+                                             color = borough), #colored by borough
+                             size = 0.001, alpha = 0.05) + #change size and opacity of points
   coord_fixed() +
-  ggtitle("Rat Sightings in New York City") + 
-  labs(x = "Longitude", y = "Latitude")
+  ggtitle("Rat Sightings in New York City") + #title map
+  labs(x = "Longitude", y = "Latitude") + #label x and y axis
+  guides(color = guide_legend(override.aes = list(size = 3, alpha = 1) ) ) #Change legend key size and opacity
+  
 
 ```
 
